@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>A10 Cookie Demo</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 20px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #800000;
+      margin-top: 0;
+    }
+    #message {
+      margin: 15px 0;
+      font-weight: bold;
+    }
+    #cookieValue {
+      font-family: "Courier New", monospace;
+      background: #f0f0f0;
+      padding: 8px;
+      border-radius: 4px;
+      word-wrap: break-word;
+    }
+    footer {
+      margin-top: 30px;
+      font-size: 0.9em;
+      text-align: center;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>A10 Cookie Demo</h1>
+    <p>This page sets a cookie with your name and displays it when you reload the page.</p>
+
+    <div id="message"></div>
+    <div>
+      <strong>document.cookie:</strong>
+      <p id="cookieValue">(no cookie yet)</p>
+    </div>
+
+    <button id="resetButton">Reset / Change Name</button>
+
+    <footer>
+      &copy; November 18, Andres Vega – A10
+    </footer>
+  </div>
+
+  <script>
+    // Helper: set a cookie
+    function setCookie(name, value, days) {
+      const d = new Date();
+      d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+      const expires = "expires=" + d.toUTCString();
+      document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
+    }
+
+    // Helper: get a cookie by name
+    function getCookie(name) {
+      const decodedCookie = decodeURIComponent(document.cookie);
+      const ca = decodedCookie.split(';');
+      const cookieName = name + "=";
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i].trim();
+        if (c.indexOf(cookieName) === 0) {
+          return c.substring(cookieName.length, c.length);
+        }
+      }
+      return "";
+    }
+
+    function askForNameAndSaveCookie() {
+      const user = prompt("Enter your name so we can save it in a cookie:", "");
+      if (user && user.trim() !== "") {
+        setCookie("userName", user.trim(), 7); // keep for 7 days
+        return user.trim();
+      }
+      return null;
+    }
+
+    function showCookieInfo() {
+      const messageEl = document.getElementById("message");
+      const cookieEl = document.getElementById("cookieValue");
+
+      let userName = getCookie("userName");
+
+      if (userName === "") {
+        // First visit or no cookie yet
+        userName = askForNameAndSaveCookie();
+        if (userName) {
+          messageEl.textContent = "First time here, " + userName +
+            ". We just saved your name in a cookie. Reload the page to see it remembered.";
+        } else {
+          messageEl.textContent = "No name was entered, so no cookie was set.";
+        }
+      } else {
+        // Cookie already exists
+        messageEl.textContent = "Welcome back, " + userName +
+          "! Your name was loaded from the cookie.";
+      }
+
+      // Show the raw document.cookie value
+      cookieEl.textContent = document.cookie || "(no cookie set)";
+    }
+
+    document.getElementById("resetButton").addEventListener("click", function () {
+      const newName = askForNameAndSaveCookie();
+      if (newName) {
+        document.getElementById("message").textContent =
+          "Name updated to " + newName + ". Reload the page to see it remembered.";
+        document.getElementById("cookieValue").textContent = document.cookie;
+      }
+    });
+
+    // Run when the page loads
+    showCookieInfo();
+  </script>
+</body>
+</html>
